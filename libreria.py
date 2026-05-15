@@ -176,7 +176,7 @@ class BancoPreguntas:
     """Contiene todas las preguntas y monstruos del juego."""
 
     def __init__(self):
-        # Diccionario: nivel → lista de preguntas
+        
         self._preguntas = self._cargar_todas()
         self._monstruos = self._cargar_monstruos()
 
