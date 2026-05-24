@@ -43,7 +43,7 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("🌋 El Desafío del Conocimiento")
-        self.root.geometry("700x600")
+        self.root.geometry("1100x800")
         self.root.resizable(False, False)
         self.root.configure(bg=C["fondo"])
 
