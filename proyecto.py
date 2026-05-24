@@ -2,6 +2,18 @@
 # usa tkinter
 
 import tkinter as tk
+import pygame
+pygame.mixer.init()
+
+def reproducir_musica(archivo, loop=True):
+    try:
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(archivo)
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1 if loop else 0)
+    except Exception as e:
+        print(f"No se pudo cargar la música: {e}")
+        
 from libreria import (
     Jugador, Juego,
     formatear_puntaje, corazones, estrellas_nivel
@@ -103,6 +115,8 @@ class App:
         tk.Label(f, text="🛡️ 3 vidas · 3 preguntas por monstruo · Pasa con 2/3 · 💧 1 pista por nivel",
                  font=("Courier New", 9),
                  bg=C["fondo"], fg=C["gris"]).pack(pady=(20, 0))
+        
+        reproducir_musica("login.mp3")
 
         self.root.bind("<Return>", lambda e: self._iniciar())
 
@@ -112,6 +126,10 @@ class App:
         f = tk.Frame(self.root, bg=C["fondo"])
         f.place(relx=0, rely=0, relwidth=1, relheight=1)
         self.frame_actual = f
+        
+        if getattr(self, '_musica_actual', '') != 'juego':
+          self._musica_actual = 'juego'
+        reproducir_musica("juego.mp3")
 
         monstruo = self.juego.monstruo_actual()
         jugador = self.juego.jugador
@@ -165,6 +183,8 @@ class App:
     def _ir_pregunta(self):
         self._limpiar()
         self.respondido = False
+        
+        self.tiempo_restante = 15
 
         f = tk.Frame(self.root, bg=C["fondo"])
         f.place(relx=0, rely=0, relwidth=1, relheight=1)
@@ -202,7 +222,7 @@ class App:
                  font=("Courier New", 11),
                  bg=C["fondo"], fg=C["gris"]).pack(pady=(2, 5))
 
-        # Pregunta
+        
         panel_p = tk.Frame(f, bg=C["panel"])
         panel_p.pack(fill="x", padx=25, pady=4)
 
@@ -243,7 +263,7 @@ class App:
         fb.columnconfigure(0, weight=1)
         fb.columnconfigure(1, weight=1)
 
-        # Fila inferior
+        
         fila_inf = tk.Frame(f, bg=C["fondo"])
         fila_inf.pack(fill="x", padx=25, pady=8)
 
@@ -272,6 +292,14 @@ class App:
             state="disabled"
         )
         self.btn_siguiente.pack(side="right")
+        
+        self.lbl_timer = tk.Label(
+            fila_inf, text="Tiempo: 15s",
+            font=("Courier New", 12, "bold"),
+             bg=C["fondo"], fg=C["fuego3"]
+        )
+        self.lbl_timer.pack(side="left", padx=10)
+        self._iniciar_timer()
 
     
     def _ir_resultado_nivel(self, superado):
@@ -330,6 +358,9 @@ class App:
         f = tk.Frame(self.root, bg=C["fondo"])
         f.place(relx=0, rely=0, relwidth=1, relheight=1)
         self.frame_actual = f
+        
+        self._musica_actual = 'gameover'
+        reproducir_musica("gameover.mp3", loop=False)
 
         jugador = self.juego.jugador
 
@@ -439,6 +470,9 @@ class App:
         if self.respondido:
             return
         self.respondido = True
+        
+        if hasattr(self, '_timer_id'):
+         self.root.after_cancel(self._timer_id)
 
         pregunta = self.juego.pregunta_actual()
         es_correcta = self.juego.responder(opcion)
@@ -477,9 +511,25 @@ class App:
         self.juego.cargar_nivel()
         self._ir_monstruo()
 
-
+    def _iniciar_timer(self):
+        self.lbl_timer.config(text=f"Tiempo: {self.tiempo_restante}s")
+        if self.tiempo_restante <= 5:
+            self.lbl_timer.config(fg=C["incorrecto"])
+        if self.tiempo_restante > 0 and not self.respondido:
+            self.tiempo_restante -= 1
+            self._timer_id = self.root.after(1000, self._iniciar_timer)
+        elif not self.respondido:
+            self.respondido = True
+            self.juego.jugador.perder_vida()
+            self.lbl_vidas_hud.config(text=corazones(self.juego.jugador.vidas))
+            for btn in self.botones:
+                btn.config(state="disabled")
+            self.lbl_timer.config(text="Tiempo: 0s", fg=C["incorrecto"])
+            self.btn_siguiente.config(state="normal")
+            
 if __name__ == "__main__":
     ventana = tk.Tk()
     App(ventana)
     ventana.mainloop()
+
     
