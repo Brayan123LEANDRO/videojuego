@@ -550,9 +550,9 @@ class BancoPreguntas:
 def formatear_puntaje(puntaje):
     """Muestra el puntaje con ceros a la izquierda."""
     return str(puntaje).zfill(5)
-
 def corazones(vidas, maximo=3):
-    return f"{vidas}/{maximo} ♥"
+    return f"♥ {vidas}/{maximo}"
+
 
 def estrellas_nivel(nivel, total=10):
     """Retorna barra de progreso visual usando math."""

@@ -207,8 +207,8 @@ class App:
                  bg=C["panel"], fg=C["fuego2"]).grid(row=0, column=1, padx=12)
 
         self.lbl_vidas_hud = tk.Label(hud, text=corazones(jugador.vidas),
-                                       font=("Segoe UI Emoji", 11),
-                                       bg=C["panel"])
+                font=("Courier New", 14, "bold"),
+                bg=C["panel"], fg="#FFD700")
         self.lbl_vidas_hud.grid(row=0, column=2, padx=12)
 
         tk.Label(hud, text=f"Nivel {jugador.nivel_actual} · Pregunta {num}/3",
@@ -325,7 +325,7 @@ class App:
         tk.Label(f, text=sub, font=("Courier New", 11),
                  bg=C["fondo"], fg=C["gris"]).pack(pady=(5, 20))
         tk.Label(f, text=corazones(jugador.vidas),
-                 font=("Segoe UI Emoji", 20), bg=C["fondo"]).pack()
+         font=("Courier New", 20, "bold"), bg=C["fondo"], fg="#FFD700").pack()
         tk.Label(f, text=f"🏆 Puntaje: {formatear_puntaje(jugador.puntaje)}",
                  font=("Courier New", 13, "bold"),
                  bg=C["fondo"], fg=C["fuego3"]).pack(pady=8)
